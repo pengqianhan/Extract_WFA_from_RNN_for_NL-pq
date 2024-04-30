@@ -71,8 +71,8 @@ if __name__ == '__main__':
     model.eval()
     vocab_num = len(train_dataset.vocab)
     state_num = CLUSTER + 1
-    print(f'vocab: {vocab_num}')
-    print(f'data number: {len(train_dataset.int_data)}')
+    print(f'vocab: {vocab_num}')##20321
+    print(f'data number: {len(train_dataset.int_data)}')##22808
     print(f'Model and dataset ready. Use time:{time.time()-start_time:.1f}')
 
     current_time = time.time()
@@ -83,12 +83,15 @@ if __name__ == '__main__':
         while len(data) > 1 and data[-1] == 0:
             data = data[0:len(data)-1]
         data = data.reshape(-1, 1)
+        # print('data.shape',data.shape)##(length,1)
 
         model.clear_output_sequence()
         _ = model(data)
         runtime_predict = model.runtime_predict()
         runtime_data = []
+        # print('len(runtime_predict)',len(runtime_predict))##
         for step_data in runtime_predict:
+            # print('step_data.shape',step_data.shape)##(batch, 7)
             step_data = step_data.flatten().detach()
             runtime_prediction = F.softmax(step_data,dim=0)
             runtime_data.append(runtime_prediction.reshape(1, -1))

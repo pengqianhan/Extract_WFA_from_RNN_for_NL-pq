@@ -37,6 +37,7 @@ class RNN(nn.Module):
         self.rnn_out, (self.rnn_hid, self.rnn_cell) = self.rnn(self.input)
         self.rnn_hid = self.dropout(self.rnn_hid[0, :, :]) #3-dim to 2-dim, then dropout
         self.output_sequence = []
+        # print('len(self.rnn_out)',self.rnn_out.shape)
         for i in range(len(self.rnn_out)):  #foreach input, append a output
             self.output_sequence.append(self.fc(self.rnn_out[i]))
         return self.fc(self.rnn_hid)

@@ -84,6 +84,7 @@ if __name__ == '__main__':
             data = data[0:len(data)-1]
         data = data.reshape(-1, 1)
         # print('data.shape',data.shape)##(length,1)
+        # length = data.shape[0]
 
         model.clear_output_sequence()
         _ = model(data)
@@ -93,17 +94,23 @@ if __name__ == '__main__':
         for step_data in runtime_predict:
             # print('step_data.shape',step_data.shape)##(batch, 7)
             step_data = step_data.flatten().detach()
+            # print('step_data.shape',step_data.shape)##[7]
             runtime_prediction = F.softmax(step_data,dim=0)
             runtime_data.append(runtime_prediction.reshape(1, -1))
-        runtime_data = torch.concat(runtime_data, dim=0)
+        runtime_data = torch.concat(runtime_data, dim=0)##(length, 7)
+        # print('runtime_data.shape',runtime_data.shape)##(length, 7)
+        assert runtime_data.shape[0] == data.shape[0], "Assertion failed: runtime_data.shape[0] != data.shape[0]"
         rnn_prediction = torch.argmax(runtime_data[-1]) if not args.JS else runtime_data[-1]
+        # print('rnn_prediction shape',rnn_prediction.shape)##tensor(0)
+        # print('rnn_prediction',rnn_prediction)##tensor(0)
         rnn_prediction_container.append(rnn_prediction)
 
     transition_count, kmeans, state_weightes, all_prediction_container = get_transitions(model, train_dataset, CLUSTER)
     print(f'Transitions ready. Use time:{time.time()-current_time:.1f}')
 
     # generate state distance
-    state_distance = torch.zeros((state_num, state_num),device=dev())
+    state_distance = torch.zeros((state_num, state_num),device=dev())##state_num = CLUSTER + 1
+    # print('state_weightes.shape',state_weightes.shape)##(41, 7)
     for p in range(state_num):
         for q in range(state_num):
             diff = state_weightes[p] - state_weightes[q]

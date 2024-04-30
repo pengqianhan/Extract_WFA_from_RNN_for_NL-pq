@@ -77,10 +77,11 @@ def get_transitions(model, train_dataset, cluster, augment=False, synonym=0.4, d
     current_time = time.time()
     
     all_prediction_container = torch.concat(runtime_data_container, dim=0).cpu().numpy()
+    print('all_prediction_container',all_prediction_container.shape)##(205927, 7)
     '''
     stack runtime_data_container into one tensor to get kmeans clusters.
     '''
-    
+    ###parser.add_argument('--cluster', default=40, type=int)
     kmeans = KMeans(n_clusters=cluster,max_iter=500).fit(all_prediction_container)
     index = 0
     abst_state_container = []
@@ -93,16 +94,21 @@ def get_transitions(model, train_dataset, cluster, augment=False, synonym=0.4, d
             abst_states.append(kmeans.labels_[index] + 1) # states in kmeans is counted from 0
             index += 1
         abst_state_container.append(abst_states)
+
+
     assert index == transition_num
     classes = train_dataset.classes
-    state_weightes = np.array([1/classes] * classes).reshape(1,-1)
-    state_weightes = np.concatenate((state_weightes, kmeans.cluster_centers_), axis=0)
+    # print('classes',classes)##7
+    state_weightes = np.array([1/classes] * classes).reshape(1,-1)##(1,classes=7)
+    # print('kmeans.cluster_centers_',kmeans.cluster_centers_.shape)##(cluster=40, classes=7)
+    state_weightes = np.concatenate((state_weightes, kmeans.cluster_centers_), axis=0)##(41, classes=7)
     state_weightes = torch.from_numpy(state_weightes).to(dev())
     state_weightes = state_weightes.to(torch.float32)
 
     # generate transitions
 
-    vocab_num = len(train_dataset.vocab)
+    vocab_num = len(train_dataset.vocab)##
+    # print(f'vocab: {vocab_num}')##20321
     state_num = cluster + 1
     transition_count = torch.zeros((vocab_num, state_num, state_num), device=dev())
     '''

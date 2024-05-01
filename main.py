@@ -106,7 +106,7 @@ if __name__ == '__main__':
         rnn_prediction_container.append(rnn_prediction)
 
     transition_count, kmeans, state_weightes, all_prediction_container = get_transitions(model, train_dataset, CLUSTER)
-    print('transition_count.shape',transition_count[0])##(41, 41)
+    # print('transition_count[0].shape',transition_count[0])##(41, 41)
     print(f'Transitions ready. Use time:{time.time()-current_time:.1f}')
 
     # generate state distance

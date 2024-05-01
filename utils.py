@@ -182,13 +182,15 @@ def get_matrices(transition_count, state_distance, completion, regularization, b
     assert transition_count.shape[1] == state_distance.shape[0]
     transition_matrices = []
     for idx, count_matrix in enumerate(transition_count):
+        ## count_matrix: (state_num=cluster+1=41, state_num)
         if count_matrix.sum() == 0:
             matrix = torch.zeros(count_matrix.shape, device=dev())
             for i in range(len(matrix)):
-                matrix[i,i] = 1
+                matrix[i,i] = 1###diagonal is 1
+            print('matrix',matrix)
             transition_matrices.append(matrix)
             continue
-        print('transition_matrices',transition_matrices)
+        # print('transition_matrices',transition_matrices)
         matrix = completion(count_matrix, state_distance, beta)
         matrix = regularization(matrix, count_matrix, state_distance, alpha)
         transition_matrices.append(matrix)
@@ -205,7 +207,7 @@ def evaluation(dataset, transition_matrices, state_weight, rnn_prediction, JS=Fa
     assert dataset.classes == state_weight.shape[1]
 
     consist = 0
-    state_number = state_weight.shape[0]
+    state_number = state_weight.shape[0]##41 =cluster+1
 
     initial_vector = torch.zeros((1, state_number), device=dev())
     initial_vector[0,0] = 1
@@ -218,9 +220,11 @@ def evaluation(dataset, transition_matrices, state_weight, rnn_prediction, JS=Fa
         for word in data:
             state_probs = state_probs @ transition_matrices[word]
             #print(state_probs)
-        #print(state_probs)
-        prediction = state_probs @ state_weight
-        prediction = prediction.flatten()
+        print('state_probs.shape',state_probs.shape)##(1, 41)
+        print('state_weight.shape',state_weight.shape)##(cluster+1=41, class=7)
+        prediction = state_probs @ state_weight## state_weight:(cluster+1 =41, class = 7)
+        print('prediction shape',prediction.shape)##(1, 7)
+        prediction = prediction.flatten()##(7)
 
         if not JS:
             # calculate CR

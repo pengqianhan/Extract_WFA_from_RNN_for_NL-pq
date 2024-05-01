@@ -172,6 +172,13 @@ def add_transitions(model, all_data, matrices, kmeans):
     return matrices
 
 def get_matrices(transition_count, state_distance, completion, regularization, beta, alpha):
+    ##    BETA = args.beta##0.3
+    ##    ALPHA = args.alpha##0.4
+    # print('transition_count',transition_count.shape)##(20321, 41, 41)
+    # print('state_distance',state_distance.shape)##(41, 41)
+    # print('state_distance',state_distance)##(41, 41)
+    # print('completion',completion)##<function weighted_filling at 0x7f4e114dba60>
+    # print('regularization',regularization)##<function linear_regularization at 0x7f4e114dbce0>
     assert transition_count.shape[1] == state_distance.shape[0]
     transition_matrices = []
     for idx, count_matrix in enumerate(transition_count):
@@ -181,10 +188,11 @@ def get_matrices(transition_count, state_distance, completion, regularization, b
                 matrix[i,i] = 1
             transition_matrices.append(matrix)
             continue
-
+        print('transition_matrices',transition_matrices)
         matrix = completion(count_matrix, state_distance, beta)
         matrix = regularization(matrix, count_matrix, state_distance, alpha)
         transition_matrices.append(matrix)
+        
 
     transition_matrices = torch.stack(transition_matrices)
     return transition_matrices.to(dev())

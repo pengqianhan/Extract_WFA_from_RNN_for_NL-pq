@@ -43,8 +43,8 @@ if __name__ == '__main__':
     DATASET = args.dataset
     CLUSTER = args.cluster
 
-    BETA = args.beta
-    ALPHA = args.alpha
+    BETA = args.beta##0.3
+    ALPHA = args.alpha##0.4
 
     # select the completion and regularization tactics
     if args.ablation:
@@ -106,11 +106,13 @@ if __name__ == '__main__':
         rnn_prediction_container.append(rnn_prediction)
 
     transition_count, kmeans, state_weightes, all_prediction_container = get_transitions(model, train_dataset, CLUSTER)
+    print('transition_count.shape',transition_count[0])##(41, 41)
     print(f'Transitions ready. Use time:{time.time()-current_time:.1f}')
 
     # generate state distance
     state_distance = torch.zeros((state_num, state_num),device=dev())##state_num = CLUSTER + 1
     # print('state_weightes.shape',state_weightes.shape)##(41, 7)
+    ##state_num = CLUSTER + 1# =40+1 
     for p in range(state_num):
         for q in range(state_num):
             diff = state_weightes[p] - state_weightes[q]
